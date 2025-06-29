@@ -22,8 +22,10 @@ class User extends Authenticatable
         'first_name',
         'last_name',
         'email',
-        'role_id',
         'password',
+        'role_id',
+        'department_id'
+        
     ];
 
     /**
@@ -48,4 +50,22 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function hasRole($role)
+    {
+        return $this->roles()->where('name', $role)->exists();
+    }
+
+    public function hasPermission($permission)
+    {
+        return $this->roles()->whereHas('permissions', function ($q) use ($permission) {
+            $q->where('name', $permission);
+        })->exists();
+    }
+
 }
