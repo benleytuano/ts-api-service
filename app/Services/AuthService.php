@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Exception;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
@@ -44,6 +45,13 @@ class AuthService{
         $user->tokens()->delete();
 
         return true;
+    }
+
+    public function getCurrentUser()
+    {
+        return [
+            'user' => auth()->user() // Already authenticated by middleware
+        ];
     }
 
     // public function sendPasswordResetLink(array $data)
