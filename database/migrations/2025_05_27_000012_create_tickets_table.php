@@ -18,9 +18,19 @@ return new class extends Migration
             $table->longText('description');
             $table->foreignId('category_id')->constrained(
                 table:  'categories',
-            );
-            $table->string('status');
-            $table->string('priority');
+            );  
+              // Department and Location tracking (nullable if optional)
+            $table->foreignId('department_id')->nullable()->constrained('departments');
+            $table->foreignId('location_id')->nullable()->constrained('locations');
+
+            // Priority (low, medium, high)
+            $table->string('priority')->default('medium');
+
+            // Status (open, in_progress, resolved, etc.)
+            $table->string('status')->default('open');
+            $table->string('contact_number')->nullable();
+            $table->string('patient_name')->nullable();
+            $table->string('equipment_details')->nullable();
             $table->timestamps();
         });
     }

@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\api\AuthController;
 use App\Http\Controllers\api\UserController;
+use App\Http\Controllers\api\TicketController;
+use App\Http\Controllers\api\CategoryController;
 
 Route::controller(AuthController::class)->prefix('auth')->group(function () {
     // Public routes
@@ -20,3 +22,15 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
     });
 });
 
+// Categories routes - publicly accessible for form data
+Route::prefix('categories')->group(function () {
+    Route::get('/', [CategoryController::class, 'index']);
+    Route::get('/active', [CategoryController::class, 'active']);
+    Route::get('/with-counts', [CategoryController::class, 'withTicketCounts']);
+});
+
+Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
+    Route::post('/', [TicketController::class, 'store']);
+    Route::get('/', [TicketController::class, 'index']);
+    Route::get('/{id}', [TicketController::class, 'show']);
+});
