@@ -15,14 +15,15 @@ class TicketService
 
     public function getVisibleTicketsFor(User $user)
     {
-        $q = Ticket::query();
+        // Include all related details to avoid N+1 queries
+        $q = Ticket::query()->with(['user', 'category', 'department', 'location']);
 
         if ($user->isRole('admin')) {
             return $q->latest()->get();
         }
 
         if ($user->isRole('agent')) {
-            return $q->where('status', 'active') // all active tickets, no department filter
+            return $q->where('status', 'active')
                     ->latest()
                     ->get();
         }
