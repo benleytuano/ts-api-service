@@ -6,38 +6,59 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
+
+            // Requester (who created the ticket)
+            $table->foreignId('user_id')
+                  ->constrained('users')
+                  ->restrictOnDelete(); // don't delete tickets if a user is removed
+
+            // Current assignee (nullable)
+            $table->foreignId('assignee_id')
+                  ->nullable()
+                  ->constrained('users')
+                  ->nullOnDelete();     // if assignee is deleted, set to NULL
+            $table->timestamp('assigned_at')->nullable();
+
+            // Core fields
             $table->string('title');
             $table->longText('description');
-            $table->foreignId('category_id')->constrained(
-                table:  'categories',
-            );  
-              // Department and Location tracking (nullable if optional)
-            $table->foreignId('department_id')->nullable()->constrained('departments');
-            $table->foreignId('location_id')->nullable()->constrained('locations');
 
-            // Priority (low, medium, high)
-            $table->string('priority')->default('medium');
+            // Taxonomy / placement
+            $table->foreignId('category_id')
+                  ->constrained('categories')
+                  ->restrictOnDelete();
+            $table->foreignId('department_id')
+                  ->nullable()
+                  ->constrained('departments')
+                  ->nullOnDelete();
+            $table->foreignId('location_id')
+                  ->nullable()
+                  ->constrained('locations')
+                  ->nullOnDelete();
 
-            // Status (open, in_progress, resolved, etc.)
-            $table->string('status')->default('open');
-            $table->string('contact_number')->nullable();
+            // Workflow
+            $table->string('priority', 20)->default('medium');   // low|medium|high
+            $table->string('status', 20)->default('open');       // open|in_progress|resolved|closed
+
+            // Optional details
+            $table->string('contact_number', 32)->nullable();
             $table->string('patient_name')->nullable();
             $table->string('equipment_details')->nullable();
+
             $table->timestamps();
+
+            // Useful indexes for common filters
+            $table->index(['status', 'assignee_id'], 'tickets_status_assignee_idx');
+            $table->index(['category_id', 'status']);
+            $table->index('priority');
+            $table->index('created_at');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('tickets');

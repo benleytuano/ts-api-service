@@ -21,21 +21,21 @@ class AuthService{
 
     public function login(array $credentials)
     {
-        // Find user by email
-        $user = User::where('email', $credentials['email'])->first();
+        // eager-load related role and department
+        $user = User::with(['role', 'department'])
+            ->where('email', $credentials['email'])
+            ->first();
 
-        // Check if user exists and password is correct
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
             return false;
         }
 
-        // Generate token (using Sanctum)
         $token = $user->createToken('auth-token')->plainTextToken;
 
         return [
-            'user' => $user,
+            'user' => $user,           // now includes: role {id,name}, department {id,name}
             'token' => $token,
-            'message' => 'Login successful'
+            'message' => 'Login successful',
         ];
     }
 
@@ -47,13 +47,28 @@ class AuthService{
         return true;
     }
 
-    public function getCurrentUser()
+    public function getCurrentUser(): array
     {
+        $user = auth()->user(); // or just auth()->user()
+
+        if (!$user) {
+            abort(401, 'Unauthenticated.');
+        }
+
+        // Pull in related role & department (minimal columns)
+        $user->loadMissing([
+            'role:id,name',
+            'department:id,name',
+        ]);
+
+        // (Optional) include current token abilities for frontend gating
+        $abilities = $user->currentAccessToken()?->abilities ?? [];
+
         return [
-            'user' => auth()->user() // Already authenticated by middleware
+            'user' => $user,
+            'abilities' => $abilities, // remove if you don't need it
         ];
     }
-
     // public function sendPasswordResetLink(array $data)
     // {
     //     $status = Password::sendResetLink(['email' => $data['email']]);

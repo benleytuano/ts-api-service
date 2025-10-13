@@ -53,7 +53,13 @@ class User extends Authenticatable
 
     public function role()
     {
-        return $this->belongsTo(Role::class);
+        // limit columns to what you need in API responses
+        return $this->belongsTo(Role::class)->select('id', 'name');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class)->select('id', 'name');
     }
 
     public function isRole(string $name): bool

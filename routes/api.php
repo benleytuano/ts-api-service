@@ -33,4 +33,12 @@ Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
     Route::post('/', [TicketController::class, 'store']);
     Route::get('/', [TicketController::class, 'index']);
     Route::get('/{id}', [TicketController::class, 'show']);
+    
+    // Assignment actions
+    Route::post('/{id}/assign',   [TicketController::class, 'assign']);   // claim-only
+    Route::post('/{id}/reassign', [TicketController::class, 'reassign']); // admin-only
+    Route::post('/{id}/unassign', [TicketController::class, 'unassign']); // optional race-guard
+
+    Route::post('/{id}/resolve', [TicketController::class, 'resolve']);
+
 });

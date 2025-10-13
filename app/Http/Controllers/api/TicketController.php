@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\api;
 
+use App\Models\Ticket;
 use Illuminate\Http\Request;
 use App\Services\TicketService;
 use Illuminate\Routing\Controller;
@@ -32,5 +33,40 @@ class TicketController extends Controller
         return response()->json($ticket);
     }
 
-    // Add update, delete, etc. as needed
+     /** Claim-only: succeeds only if currently unassigned (atomic). */
+    public function assign($id, TicketService $service)
+    {
+        $ticket  = $service->getById($id);
+        $updated = $service->assign($ticket, auth()->user());
+
+        return response()->json($updated);
+    }
+
+    // /** Admin-only reassignment (overwrite). */
+    // public function reassign($id, ReassignTicketRequest $request, TicketService $service)
+    // {
+    //     $ticket  = $service->getById($id);
+    //     $assigneeId = (int)$request->validated()['assignee_id'];
+
+    //     $updated = $service->reassign($ticket, $assigneeId, $request->user());
+    //     return response()->json($updated);
+    // }
+
+    /** Unassign; optionally guard with expected_assignee_id to avoid races. */
+    public function unassign($id, TicketService $service)
+    {
+        $ticket = $service->getById($id);
+        $updated = $service->unassign($ticket, auth()->user());
+
+        return response()->json($updated);
+    }
+
+    public function resolve($id, Request $request, TicketService $service)
+    {
+        $ticket = Ticket::findOrFail($id);
+
+        $resolved = $service->resolve($ticket, $request->user());
+
+        return response()->json($resolved);
+    }
 }
