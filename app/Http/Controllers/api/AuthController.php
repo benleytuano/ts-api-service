@@ -40,6 +40,17 @@ class AuthController extends Controller
 
     }
 
+    public function logout(Request $request, AuthService $service)
+    {
+        $result = $service->logout($request->user()); 
+
+        return response()->json([
+            'success' => $result,
+            'message' => 'Logged out successfully',
+        ]);
+
+    }
+
     public function me(AuthService $service)
     {
         $result = $service->getCurrentUser();
