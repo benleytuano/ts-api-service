@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use App\Models\Ticket;
+use App\Models\TicketUpdate;
 
 class TicketService
 {
@@ -128,7 +129,49 @@ class TicketService
         return $ticket->fresh(['user','assignee','category','department','location']);
     }
 
+    /* ========= Ticket Updates ========= */
 
+    /**
+     * Get all updates for a ticket (filtered by user role)
+     */
+    public function getUpdatesForTicket(Ticket $ticket, User $user)
+    {
+        $query = TicketUpdate::where('ticket_id', $ticket->id)
+            ->withUser()
+            ->orderBy('created_at', 'asc');
+
+        // Regular users can only see public updates
+        // Agents and admins can see all updates including internal notes
+        if (!($user->isRole('admin') || $user->isRole('agent'))) {
+            $query->public();
+        }
+
+        return $query->get();
+    }
+
+    /**
+     * Create a new update/comment on a ticket
+     */
+    public function createUpdate(Ticket $ticket, array $payload, User $actor): TicketUpdate
+    {
+        // Ensure user_id and ticket_id are set
+        $payload['user_id'] = $actor->id;
+        $payload['ticket_id'] = $ticket->id;
+
+        // Default type to 'comment' if not specified
+        $payload['type'] = $payload['type'] ?? TicketUpdate::TYPE_COMMENT;
+
+        // Only agents/admins can create internal notes
+        if (isset($payload['is_internal']) && $payload['is_internal']) {
+            if (!($actor->isRole('admin') || $actor->isRole('agent'))) {
+                abort(403, 'Only agents and admins can create internal notes.');
+            }
+        }
+
+        $update = TicketUpdate::create($payload);
+
+        return $update->load('user:id,first_name,last_name,email');
+    }
 
 
 }

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Services\TicketService;
 use Illuminate\Routing\Controller;
 use App\Http\Requests\Ticket\CreateTicketRequest;
+use App\Http\Requests\Ticket\CreateTicketUpdateRequest;
 
 class TicketController extends Controller
 {
@@ -68,5 +69,31 @@ class TicketController extends Controller
         $resolved = $service->resolve($ticket, $request->user());
 
         return response()->json($resolved);
+    }
+
+    /* ========= Ticket Updates ========= */
+
+    /**
+     * Get all updates for a specific ticket
+     */
+    public function getUpdates($id, Request $request, TicketService $service)
+    {
+        $ticket = $service->getById($id);
+        $updates = $service->getUpdatesForTicket($ticket, $request->user());
+
+        return response()->json($updates);
+    }
+
+    /**
+     * Create a new update/comment on a ticket
+     */
+    public function createUpdate($id, CreateTicketUpdateRequest $request, TicketService $service)
+    {
+        $ticket = $service->getById($id);
+        $payload = $request->validated();
+
+        $update = $service->createUpdate($ticket, $payload, $request->user());
+
+        return response()->json($update, 201);
     }
 }
