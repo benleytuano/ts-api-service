@@ -6,6 +6,8 @@ use App\Http\Controllers\api\AuthController;
 use App\Http\Controllers\api\UserController;
 use App\Http\Controllers\api\TicketController;
 use App\Http\Controllers\api\CategoryController;
+use App\Http\Controllers\api\RoleController;
+use App\Http\Controllers\api\DepartmentController;
 
 Route::controller(AuthController::class)->prefix('auth')->group(function () {
     // Public routes
@@ -27,6 +29,19 @@ Route::prefix('categories')->group(function () {
     Route::get('/', [CategoryController::class, 'index']);
     Route::get('/active', [CategoryController::class, 'active']);
     Route::get('/with-counts', [CategoryController::class, 'withTicketCounts']);
+});
+
+// Roles routes - publicly accessible for form data
+Route::prefix('roles')->group(function () {
+    Route::get('/', [RoleController::class, 'index']);
+    Route::get('/{id}', [RoleController::class, 'show']);
+});
+
+// Departments routes - publicly accessible for form data
+Route::prefix('departments')->group(function () {
+    Route::get('/', [DepartmentController::class, 'index']);
+    Route::get('/{id}', [DepartmentController::class, 'show']);
+    Route::get('/with-counts', [DepartmentController::class, 'withUserCounts']);
 });
 
 Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {

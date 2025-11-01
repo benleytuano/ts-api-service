@@ -35,5 +35,10 @@ class Department extends Model
         return $this->hasMany(Location::class);
     }
 
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
 
 }
