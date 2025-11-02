@@ -44,6 +44,14 @@ Route::prefix('departments')->group(function () {
     Route::get('/with-counts', [DepartmentController::class, 'withUserCounts']);
 });
 
+// Users routes - publicly accessible for form data
+Route::prefix('users')->group(function () {
+    Route::get('/', [UserController::class, 'index']);
+    Route::get('/{id}', [UserController::class, 'show']);
+    Route::get('/role/{roleName}', [UserController::class, 'byRole']);
+    Route::get('/department/{departmentId}', [UserController::class, 'byDepartment']);
+});
+
 Route::middleware('auth:sanctum')->prefix('tickets')->group(function () {
     Route::post('/', [TicketController::class, 'store']);
     Route::get('/', [TicketController::class, 'index']);
