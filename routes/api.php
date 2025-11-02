@@ -8,6 +8,7 @@ use App\Http\Controllers\api\TicketController;
 use App\Http\Controllers\api\CategoryController;
 use App\Http\Controllers\api\RoleController;
 use App\Http\Controllers\api\DepartmentController;
+use App\Http\Controllers\api\PermissionController;
 
 Route::controller(AuthController::class)->prefix('auth')->group(function () {
     // Public routes
@@ -35,6 +36,12 @@ Route::prefix('categories')->group(function () {
 Route::prefix('roles')->group(function () {
     Route::get('/', [RoleController::class, 'index']);
     Route::get('/{id}', [RoleController::class, 'show']);
+});
+
+// Permissions routes - publicly accessible for form data
+Route::prefix('permissions')->group(function () {
+    Route::get('/', [PermissionController::class, 'index']);
+    Route::get('/{id}', [PermissionController::class, 'show']);
 });
 
 // Departments routes - publicly accessible for form data

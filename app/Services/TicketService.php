@@ -24,7 +24,7 @@ class TicketService
         }
 
         if ($user->isRole('agent')) {
-            return $q->where('status', 'active')
+            return $q->where('status', 'open')
                     ->latest()
                     ->get();
         }
