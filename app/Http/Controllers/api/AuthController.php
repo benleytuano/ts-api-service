@@ -9,6 +9,7 @@ use App\Services\AuthService;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\Auth\RegisterRequest;
+use App\Http\Requests\Auth\UpdateProfileRequest;
 
 class AuthController extends Controller
 {
@@ -54,8 +55,17 @@ class AuthController extends Controller
     public function me(AuthService $service)
     {
         $result = $service->getCurrentUser();
-        
+
         return response()->json($result);
+    }
+
+    public function updateProfile(UpdateProfileRequest $request, AuthService $service)
+    {
+        $payload = $request->validated();
+
+        $result = $service->updateProfile($payload);
+
+        return response()->json($result, 200);
     }
 
 }

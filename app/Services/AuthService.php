@@ -69,6 +69,43 @@ class AuthService{
             'abilities' => $abilities, // remove if you don't need it
         ];
     }
+
+    /**
+     * Update user profile (email and/or password)
+     * At least one field must be provided
+     */
+    public function updateProfile(array $payload): array
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            abort(401, 'Unauthenticated.');
+        }
+
+        // Update email if provided
+        if (isset($payload['email']) && !empty($payload['email'])) {
+            $user->email = $payload['email'];
+        }
+
+        // Update password if provided
+        if (isset($payload['password']) && !empty($payload['password'])) {
+            $user->password = Hash::make($payload['password']);
+        }
+
+        $user->save();
+
+        // Reload with relationships
+        $user->loadMissing([
+            'role:id,name',
+            'department:id,name',
+        ]);
+
+        return [
+            'success' => true,
+            'user' => $user,
+            'message' => 'Profile updated successfully',
+        ];
+    }
     // public function sendPasswordResetLink(array $data)
     // {
     //     $status = Password::sendResetLink(['email' => $data['email']]);
