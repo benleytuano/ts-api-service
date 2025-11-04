@@ -18,7 +18,11 @@ class UserController extends Controller
     {
         try {
             $users = User::select('id', 'first_name', 'last_name', 'email', 'role_id', 'department_id')
-                ->with(['role:id,name', 'department:id,name'])
+                ->with([
+                    'role:id,name',
+                    'department:id,name',
+                    'department.locations:id,department_id,name'
+                ])
                 ->orderBy('first_name', 'asc')
                 ->get();
 
@@ -47,7 +51,11 @@ class UserController extends Controller
     {
         try {
             $user = User::select('id', 'first_name', 'last_name', 'email', 'role_id', 'department_id')
-                ->with(['role:id,name', 'department:id,name'])
+                ->with([
+                    'role:id,name',
+                    'department:id,name',
+                    'department.locations:id,department_id,name'
+                ])
                 ->findOrFail($id);
 
             return response()->json([
@@ -75,7 +83,11 @@ class UserController extends Controller
     {
         try {
             $users = User::select('id', 'first_name', 'last_name', 'email', 'role_id', 'department_id')
-                ->with(['role:id,name', 'department:id,name'])
+                ->with([
+                    'role:id,name',
+                    'department:id,name',
+                    'department.locations:id,department_id,name'
+                ])
                 ->whereHas('role', function ($query) use ($roleName) {
                     $query->where('name', $roleName);
                 })
@@ -107,7 +119,11 @@ class UserController extends Controller
     {
         try {
             $users = User::select('id', 'first_name', 'last_name', 'email', 'role_id', 'department_id')
-                ->with(['role:id,name', 'department:id,name'])
+                ->with([
+                    'role:id,name',
+                    'department:id,name',
+                    'department.locations:id,department_id,name'
+                ])
                 ->where('department_id', $departmentId)
                 ->orderBy('first_name', 'asc')
                 ->get();

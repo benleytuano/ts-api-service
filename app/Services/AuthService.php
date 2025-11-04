@@ -55,10 +55,11 @@ class AuthService{
             abort(401, 'Unauthenticated.');
         }
 
-        // Pull in related role & department (minimal columns)
+        // Pull in related role, department & locations (minimal columns)
         $user->loadMissing([
             'role:id,name',
             'department:id,name',
+            'department.locations:id,department_id,name',
         ]);
 
         // (Optional) include current token abilities for frontend gating
